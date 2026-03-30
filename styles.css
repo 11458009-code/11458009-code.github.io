@@ -1,0 +1,329 @@
+:root {
+  --bg1: #f7f3e8;
+  --bg2: #e4f0d0;
+  --ink: #1f2a1f;
+  --accent: #1f7a5a;
+  --accent-2: #d65a31;
+  --card: rgba(255, 255, 255, 0.78);
+  --shadow: 0 12px 30px rgba(31, 42, 31, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Noto Sans TC", sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at 20% 20%, var(--bg2), var(--bg1));
+  overflow-x: hidden;
+}
+
+.bg-shape {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(2px);
+  z-index: 0;
+}
+
+.bg-shape-1 {
+  width: 320px;
+  height: 320px;
+  background: rgba(214, 90, 49, 0.2);
+  top: -80px;
+  right: -80px;
+  animation: floatA 8s ease-in-out infinite;
+}
+
+.bg-shape-2 {
+  width: 240px;
+  height: 240px;
+  background: rgba(31, 122, 90, 0.22);
+  bottom: -70px;
+  left: -50px;
+  animation: floatB 9s ease-in-out infinite;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  width: min(960px, 92%);
+  margin: 0 auto;
+  padding: 64px 0 72px;
+}
+
+.hero {
+  background: var(--card);
+  border: 1px solid rgba(31, 42, 31, 0.1);
+  border-radius: 22px;
+  padding: 36px 28px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(4px);
+  animation: reveal 0.8s ease both;
+}
+
+.tag {
+  display: inline-block;
+  margin: 0 0 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  background: rgba(31, 122, 90, 0.12);
+  color: var(--accent);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.2;
+}
+
+h1 span {
+  color: var(--accent-2);
+}
+
+.intro {
+  margin: 16px 0 0;
+  font-size: 1.08rem;
+  line-height: 1.8;
+  max-width: 38em;
+}
+
+.works {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid rgba(31, 42, 31, 0.1);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+  animation: reveal 0.8s ease both;
+}
+
+.card:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 1.45rem;
+}
+
+.card p {
+  margin: 0 0 18px;
+  line-height: 1.75;
+}
+
+.thumbnail {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(31, 42, 31, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+.thumbnail::before,
+.thumbnail::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.mole-thumb {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05)),
+    url("images/mole-thumbnail.png"),
+    radial-gradient(circle at 24% 57%, #6f4632 0 6%, transparent 6.2%),
+    radial-gradient(circle at 22% 56%, #fff 0 0.9%, transparent 1%),
+    radial-gradient(circle at 26% 56%, #fff 0 0.9%, transparent 1%),
+    radial-gradient(circle at 22% 56%, #1f1f1f 0 0.35%, transparent 0.45%),
+    radial-gradient(circle at 26% 56%, #1f1f1f 0 0.35%, transparent 0.45%),
+    radial-gradient(circle at 50% 53%, #7c5037 0 6.5%, transparent 6.7%),
+    radial-gradient(circle at 48% 52%, #fff 0 0.9%, transparent 1%),
+    radial-gradient(circle at 52% 52%, #fff 0 0.9%, transparent 1%),
+    radial-gradient(circle at 48% 52%, #1f1f1f 0 0.35%, transparent 0.45%),
+    radial-gradient(circle at 52% 52%, #1f1f1f 0 0.35%, transparent 0.45%),
+    radial-gradient(circle at 76% 58%, #6b412f 0 6%, transparent 6.2%),
+    radial-gradient(circle at 74% 57%, #fff 0 0.9%, transparent 1%),
+    radial-gradient(circle at 78% 57%, #fff 0 0.9%, transparent 1%),
+    radial-gradient(circle at 74% 57%, #1f1f1f 0 0.35%, transparent 0.45%),
+    radial-gradient(circle at 78% 57%, #1f1f1f 0 0.35%, transparent 0.45%),
+    radial-gradient(ellipse at 24% 78%, #4d2e1f 0 14%, transparent 14.2%),
+    radial-gradient(ellipse at 50% 76%, #5a3724 0 16%, transparent 16.2%),
+    radial-gradient(ellipse at 76% 79%, #4d2d1e 0 14%, transparent 14.2%),
+    linear-gradient(180deg, #9fe3ff 0 34%, #7ecf74 34% 62%, #5c8a44 62% 100%);
+  background-size:
+    100% 100%,
+    contain,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.mole-thumb::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 32%);
+}
+
+.mole-thumb::after {
+  background:
+    radial-gradient(circle at 84% 16%, rgba(255, 255, 255, 0.22) 0 11%, transparent 11.2%),
+    linear-gradient(0deg, rgba(20, 30, 20, 0.18) 0 18%, transparent 18%);
+}
+
+.snake-thumb {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08)),
+    url("images/snake-thumbnail.png"),
+    radial-gradient(circle at 77% 23%, #ff676e 0 4.4%, #f1424b 4.4% 5.5%, transparent 5.7%),
+    radial-gradient(circle at 73% 21%, rgba(255, 255, 255, 0.45) 0 1.1%, transparent 1.3%),
+    radial-gradient(circle at 22% 70%, #36a56f 0 5.2%, transparent 5.4%),
+    radial-gradient(circle at 29% 70%, #3ab679 0 5.2%, transparent 5.4%),
+    radial-gradient(circle at 36% 70%, #2f9e67 0 5.2%, transparent 5.4%),
+    radial-gradient(circle at 43% 70%, #3ab679 0 5.2%, transparent 5.4%),
+    radial-gradient(circle at 50% 70%, #2e8f5f 0 5.2%, transparent 5.4%),
+    radial-gradient(circle at 50% 62%, #37aa72 0 5.2%, transparent 5.4%),
+    radial-gradient(circle at 50% 54%, #3aba7c 0 5.2%, transparent 5.4%),
+    radial-gradient(circle at 57% 54%, #2f9f67 0 5.2%, transparent 5.4%),
+    radial-gradient(circle at 64% 54%, #3bbf80 0 5.2%, transparent 5.4%),
+    radial-gradient(circle at 71% 54%, #2f9e67 0 5.2%, transparent 5.4%),
+    radial-gradient(circle at 78% 54%, #3aba7b 0 5.2%, transparent 5.4%),
+    linear-gradient(180deg, #162738, #1a3347);
+  background-size:
+    100% 100%,
+    cover,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto;
+  background-position: center;
+}
+
+.snake-thumb::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 35%);
+}
+
+.snake-thumb::after {
+  background:
+    radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.22) 0 11%, transparent 11.2%),
+    linear-gradient(0deg, rgba(10, 18, 26, 0.2) 0 18%, transparent 18%);
+}
+
+.card h3 {
+  margin: 0 0 10px;
+  font-size: 1.02rem;
+  color: var(--accent);
+}
+
+.game-desc {
+  margin: 0 0 18px;
+  padding-left: 20px;
+  line-height: 1.75;
+}
+
+.game-desc li + li {
+  margin-top: 4px;
+}
+
+.card a {
+  display: inline-block;
+  text-decoration: none;
+  color: white;
+  background: linear-gradient(135deg, var(--accent), #2ca178);
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.card a:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatA {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(15px);
+  }
+}
+
+@keyframes floatB {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding-top: 32px;
+  }
+
+  .hero {
+    padding: 26px 20px;
+  }
+
+  .works {
+    grid-template-columns: 1fr;
+  }
+}
