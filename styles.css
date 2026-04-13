@@ -113,6 +113,11 @@ h1 span {
   animation-delay: 0.15s;
 }
 
+.card:nth-child(3) {
+  animation-delay: 0.3s;
+  grid-column: 1 / -1;
+}
+
 .card h2 {
   margin: 0 0 12px;
   font-size: 1.45rem;
@@ -249,6 +254,33 @@ h1 span {
   background:
     radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.22) 0 11%, transparent 11.2%),
     linear-gradient(0deg, rgba(10, 18, 26, 0.2) 0 18%, transparent 18%);
+}
+
+.calc-thumb {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+    radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.2) 0 4%, transparent 4.2%),
+    linear-gradient(145deg, #20324b 0%, #162636 48%, #101a27 100%);
+}
+
+.calc-thumb::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 34%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1));
+}
+
+.calc-thumb::after {
+  background:
+    radial-gradient(ellipse at 50% 24%, rgba(121, 211, 184, 0.9) 0 15%, transparent 15.3%),
+    linear-gradient(180deg, transparent 0 18%, rgba(255, 255, 255, 0.08) 18% 20%, transparent 20%),
+    radial-gradient(circle at 20% 54%, #ffd166 0 6.2%, transparent 6.4%),
+    radial-gradient(circle at 39% 54%, #ff8c5a 0 6.2%, transparent 6.4%),
+    radial-gradient(circle at 58% 54%, #79d3b8 0 6.2%, transparent 6.4%),
+    radial-gradient(circle at 77% 54%, #8ac6ff 0 6.2%, transparent 6.4%),
+    radial-gradient(circle at 20% 74%, #ffffff 0 6.2%, transparent 6.4%),
+    radial-gradient(circle at 39% 74%, #ffffff 0 6.2%, transparent 6.4%),
+    radial-gradient(circle at 58% 74%, #ffffff 0 6.2%, transparent 6.4%),
+    radial-gradient(circle at 77% 74%, #ffffff 0 6.2%, transparent 6.4%);
 }
 
 .card h3 {

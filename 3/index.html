@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>工程計算機</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-a: #0f172a;
+      --bg-b: #14213d;
+      --panel: rgba(15, 23, 42, 0.74);
+      --panel-2: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --muted: rgba(248, 250, 252, 0.72);
+      --accent: #7dd3fc;
+      --accent-2: #fbbf24;
+      --line: rgba(255, 255, 255, 0.1);
+      --shadow: 0 24px 70px rgba(2, 6, 23, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans TC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(125, 211, 252, 0.2), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(251, 191, 36, 0.16), transparent 30%),
+        linear-gradient(160deg, var(--bg-a), var(--bg-b));
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      border-radius: 50%;
+      filter: blur(2px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      width: 280px;
+      height: 280px;
+      top: -80px;
+      right: -70px;
+      background: rgba(125, 211, 252, 0.14);
+      animation: float 10s ease-in-out infinite;
+    }
+
+    body::after {
+      width: 220px;
+      height: 220px;
+      left: -60px;
+      bottom: -50px;
+      background: rgba(251, 191, 36, 0.12);
+      animation: float 12s ease-in-out infinite reverse;
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      width: min(1080px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 40px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .topbar-info {
+      margin-left: auto;
+      text-align: right;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(248, 250, 252, 0.9);
+      font-size: 0.92rem;
+      line-height: 1.35;
+      white-space: nowrap;
+    }
+
+    .topbar-info strong {
+      display: block;
+      color: var(--accent);
+      font-size: 0.82rem;
+      letter-spacing: 0.06em;
+      margin-bottom: 2px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .mark {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(125, 211, 252, 0.95), rgba(251, 191, 36, 0.92));
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.35);
+      display: grid;
+      place-items: center;
+      color: #0f172a;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      line-height: 1.2;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .back {
+      text-decoration: none;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--line);
+      padding: 10px 16px;
+      border-radius: 999px;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .back:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .hero {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: stretch;
+    }
+
+    .intro,
+    .calculator {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      overflow: hidden;
+    }
+
+    .intro {
+      padding: 28px;
+      position: relative;
+    }
+
+    .tag {
+      display: inline-block;
+      margin: 0 0 14px;
+      padding: 7px 13px;
+      border-radius: 999px;
+      background: rgba(125, 211, 252, 0.14);
+      color: var(--accent);
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .intro h2 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1.06;
+    }
+
+    .intro h2 span {
+      color: var(--accent-2);
+    }
+
+    .intro p {
+      margin: 16px 0 0;
+      font-size: 1.05rem;
+      line-height: 1.9;
+      color: rgba(248, 250, 252, 0.82);
+      max-width: 34em;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .info-card {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: var(--panel-2);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .info-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    .info-card span {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+
+    .calculator {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: 640px;
+    }
+
+    .display {
+      padding: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent);
+    }
+
+    .mode-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .mode-pill {
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(125, 211, 252, 0.12);
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .screen {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      text-align: right;
+      outline: none;
+      caret-color: transparent;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      line-height: 1.2;
+      padding: 6px 0;
+    }
+
+    .screen::placeholder {
+      color: rgba(248, 250, 252, 0.28);
+    }
+
+    .result-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      min-height: 22px;
+    }
+
+    .result-line strong {
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .keys {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    button {
+      font: inherit;
+      border: 0;
+      color: var(--text);
+      border-radius: 18px;
+      min-height: 58px;
+      cursor: pointer;
+      transition: transform 0.16s ease, filter 0.16s ease, background 0.16s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .fn {
+      background: rgba(125, 211, 252, 0.14);
+      border: 1px solid rgba(125, 211, 252, 0.18);
+      color: #d9f6ff;
+      font-weight: 700;
+    }
+
+    .op {
+      background: rgba(251, 191, 36, 0.14);
+      border: 1px solid rgba(251, 191, 36, 0.18);
+      color: #fff1c3;
+      font-weight: 700;
+    }
+
+    .muted {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .equal {
+      background: linear-gradient(135deg, rgba(125, 211, 252, 0.95), rgba(34, 197, 94, 0.88));
+      color: #072033;
+      font-weight: 800;
+      box-shadow: 0 14px 30px rgba(34, 197, 94, 0.18);
+    }
+
+    .wide {
+      grid-column: span 2;
+    }
+
+    .span-2 {
+      grid-column: span 2;
+    }
+
+    @keyframes float {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(14px);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .calculator {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .shell {
+        width: min(100% - 20px, 1080px);
+        padding: 10px 0 18px;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .topbar-info {
+        margin-left: 0;
+        text-align: left;
+        white-space: normal;
+        border-radius: 18px;
+      }
+
+      .brand {
+        align-items: flex-start;
+      }
+
+      .back {
+        text-align: center;
+      }
+
+      .intro,
+      .display,
+      .keys {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .intro {
+        padding-top: 22px;
+        padding-bottom: 22px;
+      }
+
+      .display {
+        padding-top: 18px;
+        padding-bottom: 18px;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .info-card {
+        border-radius: 16px;
+        padding: 12px 14px;
+      }
+
+      .hero {
+        gap: 14px;
+      }
+
+      .calculator {
+        border-radius: 22px;
+      }
+
+      .keys {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      button {
+        min-height: 56px;
+        border-radius: 14px;
+        font-size: 0.98rem;
+      }
+
+      .screen {
+        font-size: clamp(1.6rem, 8vw, 2.4rem);
+      }
+
+      .mode-row,
+      .result-line {
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .shell {
+        width: min(100% - 14px, 1080px);
+      }
+
+      .intro,
+      .display,
+      .keys {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+
+      .intro h2 {
+        font-size: clamp(1.8rem, 10vw, 2.4rem);
+      }
+
+      .intro p {
+        font-size: 0.98rem;
+        line-height: 1.8;
+      }
+
+      .keys {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      button {
+        min-height: 52px;
+        border-radius: 13px;
+        font-size: 0.93rem;
+      }
+      .span-2 {
+        grid-column: span 2;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <a class="brand" href="../">
+        <div class="mark">3</div>
+        <div>
+          <h1>工程計算機</h1>
+          <p>網頁版科學計算機</p>
+        </div>
+      </a>
+      <div class="topbar-info" aria-label="設計者資訊">
+        <strong>設計者</strong>
+        07 李俊慶
+      </div>
+      <a class="back" href="../">回到作品集</a>
+    </div>
+
+    <section class="hero" aria-label="工程計算機">
+      <div class="intro">
+        <p class="tag">SCIENTIFIC CALCULATOR</p>
+        <h2>在網頁裡完成 <span>工程運算</span></h2>
+        <p>
+          這個版本支援基本四則運算、括號與小數，也能直接輸入 sin(30) 這類角度制運算。
+          預設以度數計算，適合工程與學習使用。
+        </p>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <strong>sin(30)</strong>
+            <span>直接輸入後按下等號，結果會是 0.5。</span>
+          </div>
+          <div class="info-card">
+            <strong>角度模式</strong>
+            <span>三角函數以度數計算，不需要自行轉換弧度。</span>
+          </div>
+          <div class="info-card">
+            <strong>可操作</strong>
+            <span>支援清除、退格、括號與鍵盤點擊輸入。</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="calculator">
+        <div class="display">
+          <div class="mode-row">
+            <span>工程模式 / Degree</span>
+            <span class="mode-pill">DEG</span>
+          </div>
+          <input id="screen" class="screen" type="text" value="" placeholder="0" readonly aria-label="計算式顯示" />
+          <div class="result-line">
+            <span id="equation">尚未輸入</span>
+            <strong id="result">等待計算</strong>
+          </div>
+        </div>
+
+        <div class="keys" aria-label="計算按鍵">
+          <button class="muted" data-action="clear">AC</button>
+          <button class="muted" data-action="backspace">⌫</button>
+          <button class="fn" data-value="(">(</button>
+          <button class="fn" data-value=")">)</button>
+          <button class="op" data-value="/">÷</button>
+
+          <button class="fn" data-action="sin">sin</button>
+          <button class="fn" data-action="cos">cos</button>
+          <button class="fn" data-action="tan">tan</button>
+          <button class="fn" data-action="sqrt">√</button>
+          <button class="op" data-value="*">×</button>
+
+          <button class="muted" data-value="7">7</button>
+          <button class="muted" data-value="8">8</button>
+          <button class="muted" data-value="9">9</button>
+          <button class="op" data-value="-">−</button>
+          <button class="fn" data-action="pi">π</button>
+
+          <button class="muted" data-value="4">4</button>
+          <button class="muted" data-value="5">5</button>
+          <button class="muted" data-value="6">6</button>
+          <button class="op" data-value="+">+</button>
+          <button class="fn" data-action="e">e</button>
+
+          <button class="muted" data-value="1">1</button>
+          <button class="muted" data-value="2">2</button>
+          <button class="muted" data-value="3">3</button>
+          <button class="muted" data-value=".">.</button>
+          <button class="equal span-2" data-action="equals">=</button>
+
+          <button class="muted wide" data-value="0">0</button>
+          <button class="muted" data-value="^">^</button>
+          <button class="muted" data-value="00">00</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const screen = document.getElementById('screen');
+    const equation = document.getElementById('equation');
+    const result = document.getElementById('result');
+    const keys = document.querySelectorAll('button');
+
+    let expression = '';
+    let justEvaluated = false;
+
+    const scope = {
+      sin: (value) => Math.sin((value * Math.PI) / 180),
+      cos: (value) => Math.cos((value * Math.PI) / 180),
+      tan: (value) => Math.tan((value * Math.PI) / 180),
+      asin: (value) => (Math.asin(value) * 180) / Math.PI,
+      acos: (value) => (Math.acos(value) * 180) / Math.PI,
+      atan: (value) => (Math.atan(value) * 180) / Math.PI,
+      sqrt: Math.sqrt,
+      abs: Math.abs,
+      log: (value) => Math.log(value) / Math.LN10,
+      ln: Math.log,
+      pow: Math.pow,
+      pi: Math.PI,
+      e: Math.E
+    };
+
+    function formatValue(value) {
+      if (!Number.isFinite(value)) {
+        return '無法計算';
+      }
+
+      const rounded = Math.abs(value) < 1e-12 ? 0 : value;
+      const fixed = Number(rounded.toFixed(12));
+      return Number.isInteger(fixed) ? String(fixed) : String(fixed);
+    }
+
+    function render() {
+      screen.value = expression;
+      equation.textContent = expression || '尚未輸入';
+      if (!expression) {
+        result.textContent = '等待計算';
+      }
+    }
+
+    function append(token) {
+      if (justEvaluated && /[0-9.(a-zA-Zπe]/.test(token)) {
+        expression = '';
+      }
+
+      if (justEvaluated && /[+\-*/^)]/.test(token)) {
+        justEvaluated = false;
+      }
+
+      expression += token;
+      justEvaluated = false;
+      render();
+    }
+
+    function clearAll() {
+      expression = '';
+      justEvaluated = false;
+      screen.value = '';
+      equation.textContent = '尚未輸入';
+      result.textContent = '等待計算';
+    }
+
+    function backspace() {
+      if (justEvaluated) {
+        clearAll();
+        return;
+      }
+
+      expression = expression.slice(0, -1);
+      render();
+    }
+
+    function evaluateExpression() {
+      if (!expression.trim()) {
+        result.textContent = '請先輸入算式';
+        return;
+      }
+
+      try {
+        const transformed = expression.replaceAll('^', '**');
+        const names = Object.keys(scope);
+        const values = Object.values(scope);
+        const fn = new Function(...names, `return (${transformed});`);
+        const value = fn(...values);
+        const output = formatValue(value);
+
+        equation.textContent = `${expression} =`;
+        result.textContent = output;
+        screen.value = output;
+        expression = output;
+        justEvaluated = true;
+      } catch (error) {
+        result.textContent = '格式有誤';
+        justEvaluated = true;
+      }
+    }
+
+    function insertFunction(name) {
+      append(`${name}(`);
+    }
+
+    keys.forEach((button) => {
+      button.addEventListener('click', () => {
+        const { action, value } = button.dataset;
+
+        if (value !== undefined) {
+          append(value);
+          return;
+        }
+
+        switch (action) {
+          case 'clear':
+            clearAll();
+            break;
+          case 'backspace':
+            backspace();
+            break;
+          case 'equals':
+            evaluateExpression();
+            break;
+          case 'sin':
+            insertFunction('sin');
+            break;
+          case 'cos':
+            insertFunction('cos');
+            break;
+          case 'tan':
+            insertFunction('tan');
+            break;
+          case 'sqrt':
+            insertFunction('sqrt');
+            break;
+          case 'pi':
+            append('pi');
+            break;
+          case 'e':
+            append('e');
+            break;
+        }
+      });
+    });
+
+    document.addEventListener('keydown', (event) => {
+      const { key } = event;
+
+      if (/^[0-9]$/.test(key) || ['.', '(', ')', '+', '-', '*', '/', '^'].includes(key)) {
+        append(key);
+        return;
+      }
+
+      if (key === 'Enter') {
+        event.preventDefault();
+        evaluateExpression();
+        return;
+      }
+
+      if (key === 'Backspace') {
+        event.preventDefault();
+        backspace();
+        return;
+      }
+
+      if (key === 'Escape') {
+        clearAll();
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
