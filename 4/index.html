@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gemini 2.5 Flash 聊天介面</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Fugaz+One&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-wave" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <main class="chat-shell">
+    <section class="hero-panel">
+      <p class="chip">MODEL READY</p>
+      <h1>Gemini <span>2.5 Flash</span> 對話頁</h1>
+      <p class="lead">輸入 API Key 與問題後，按下「送出訊息」即可在下方視窗查看模型回覆。</p>
+      <p><a class="back-link" href="../index.html">回到作品集</a></p>
+    </section>
+
+    <section class="chat-panel" aria-label="Gemini 對話表單">
+      <label for="apiKey">Gemini API Key</label>
+      <input id="apiKey" type="password" placeholder="貼上你的 API Key" autocomplete="off" />
+
+      <label for="question">輸入問題</label>
+      <textarea id="question" rows="5" placeholder="例如：請用三點介紹 Gemini 2.5 Flash 的特色"></textarea>
+
+      <button id="sendButton" type="button">送出訊息</button>
+
+      <div class="reply-box" aria-live="polite">
+        <p class="reply-title">顯示回覆</p>
+        <pre id="replyContent">回覆會顯示在這裡。</pre>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const apiKeyInput = document.getElementById("apiKey");
+    const questionInput = document.getElementById("question");
+    const sendButton = document.getElementById("sendButton");
+    const replyContent = document.getElementById("replyContent");
+
+    const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+
+    async function sendMessage() {
+      const apiKey = apiKeyInput.value.trim();
+      const question = questionInput.value.trim();
+
+      if (!apiKey) {
+        replyContent.textContent = "請先輸入 Gemini API Key。";
+        return;
+      }
+
+      if (!question) {
+        replyContent.textContent = "請先輸入問題內容。";
+        return;
+      }
+
+      sendButton.disabled = true;
+      sendButton.textContent = "傳送中...";
+      replyContent.textContent = "正在等待 Gemini 2.5 Flash 回覆，請稍候...";
+
+      try {
+        const response = await fetch(`${endpoint}?key=${encodeURIComponent(apiKey)}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: question }]
+              }
+            ]
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          const message = data.error && data.error.message ? data.error.message : "呼叫 Gemini API 失敗。";
+          throw new Error(message);
+        }
+
+        const answer = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts
+          ? data.candidates[0].content.parts.map((part) => part.text || "").join("\n")
+          : "模型沒有回傳文字內容。";
+
+        replyContent.textContent = answer;
+      } catch (error) {
+        replyContent.textContent = `發生錯誤：${error.message}`;
+      } finally {
+        sendButton.disabled = false;
+        sendButton.textContent = "送出訊息";
+      }
+    }
+
+    sendButton.addEventListener("click", sendMessage);
+
+    questionInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
