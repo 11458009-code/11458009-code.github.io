@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ntfy.sh 聊天視窗</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;display:flex;flex-direction:column;height:100vh;margin:0;background:#f4f6f8}
+    .header{padding:12px;background:#0b5fff;color:#fff}
+    .container{flex:1;display:flex;gap:12px;padding:12px}
+    .panel{background:#fff;border-radius:8px;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,0.08)}
+    .left{width:280px}
+    .right{flex:1;display:flex;flex-direction:column}
+    .messages{flex:1;overflow:auto;padding:8px;display:flex;flex-direction:column;gap:8px}
+    .msg{max-width:70%;padding:8px;border-radius:8px;background:#e9eefb}
+    .msg.me{margin-left:auto;background:#d1ffd6}
+    .controls{display:flex;gap:8px;margin-top:8px}
+    input,button,textarea,select{font:inherit}
+    .footer{padding:10px;text-align:center;color:#666;font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="header">ntfy.sh 聊天視窗（使用 HTTPS）</div>
+  <div class="container">
+    <div class="panel left">
+      <label>Topic（頻道）<br /><input id="topic" value="drher" placeholder="輸入 topic，例如 mychat" style="width:100%;margin-top:6px;padding:8px"/></label>
+      <div style="margin-top:8px">
+        <label>Auth（可選，Basic token）<br /><input id="auth" placeholder="user:password 或 token（可留空）" style="width:100%;margin-top:6px;padding:8px"/></label>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button id="subscribe">開始訂閱</button>
+        <button id="unsubscribe" disabled>停止訂閱</button>
+      </div>
+      <p style="margin-top:10px;font-size:13px;color:#444">注意：ntfy.sh 的 CORS、驗證及使用限制請參閱官方文件。若使用私有伺服器或 token，請妥善保護憑證。</p>
+    </div>
+
+    <div class="panel right">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        <strong>聊天視窗</strong>
+        <small style="color:#666">接收來自指定 topic 的訊息</small>
+      </div>
+      <div class="messages" id="messages" aria-live="polite"></div>
+
+      <div style="margin-top:8px">
+        <textarea id="messageInput" rows="3" placeholder="輸入訊息，按 Send 傳送" style="width:100%;padding:8px"></textarea>
+        <div class="controls">
+          <select id="priority"><option value="default">優先度: default</option><option value="low">low</option><option value="default">default</option><option value="high">high</option></select>
+          <button id="send">Send</button>
+          <button id="clear">Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">使用 ntfy.sh 的標準 HTTPS 發送與 EventSource 訂閱 (SSE)</div>
+
+  <script>
+    const topicEl = document.getElementById('topic');
+    const authEl = document.getElementById('auth');
+    const subscribeBtn = document.getElementById('subscribe');
+    const unsubscribeBtn = document.getElementById('unsubscribe');
+    const messagesEl = document.getElementById('messages');
+    const sendBtn = document.getElementById('send');
+    const clearBtn = document.getElementById('clear');
+    const messageInput = document.getElementById('messageInput');
+    const priorityEl = document.getElementById('priority');
+
+    let es = null;
+
+    function addMessage(text, fromMe=false){
+      const d = document.createElement('div');
+      d.className = 'msg' + (fromMe? ' me':'');
+      d.textContent = text;
+      messagesEl.appendChild(d);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    async function sendToNtfy(topic, message){
+      if(!topic) return alert('請先輸入 topic');
+      const url = `https://ntfy.sh/${encodeURIComponent(topic)}`;
+      const headers = {};
+      const auth = authEl.value.trim();
+      if(auth){
+        // 若輸入的是 token，使用 Authorization: Bearer <token>
+        if(!auth.includes(':')) headers['Authorization'] = 'Bearer ' + auth;
+        else headers['Authorization'] = 'Basic ' + btoa(auth);
+      }
+      const pr = priorityEl.value;
+      if(pr && pr !== 'default') headers['Priority'] = pr;
+
+      try{
+        const res = await fetch(url, {method:'POST', body: message, headers});
+        if(res.ok){
+          addMessage('我：' + message, true);
+        } else {
+          const text = await res.text().catch(()=>res.statusText);
+          addMessage('發送失敗: ' + res.status + ' ' + text);
+        }
+      }catch(err){
+        addMessage('發送錯誤: ' + err.message);
+      }
+    }
+
+    function startSubscribe(topic){
+      if(!topic) return alert('請先輸入 topic');
+      if(es) es.close();
+      const auth = authEl.value.trim();
+      let url = `https://ntfy.sh/stream?topic=${encodeURIComponent(topic)}`;
+      // 使用 EventSource，若需要驗證，無法直接在 headers 設定；可在 URL 使用 ?auth=TOKEN 若伺服器支援。
+      try{
+        es = new EventSource(url);
+      }catch(err){
+        addMessage('訂閱建立失敗: ' + err.message);
+        return;
+      }
+
+      es.onopen = ()=>{
+        addMessage('已連線到 topic: ' + topic);
+        subscribeBtn.disabled = true;
+        unsubscribeBtn.disabled = false;
+      }
+      es.onerror = (e) => {
+        addMessage('訂閱連線錯誤（可能已斷線或 CORS 限制）');
+      }
+      es.onmessage = (ev) => {
+        // ntfy 的 SSE 事件通常會傳回 JSON 或純文字；嘗試解析 JSON
+        let data = ev.data;
+        try{ const j = JSON.parse(ev.data); if(j.message) data = j.message; }catch(e){}
+        addMessage('收到：' + data);
+      }
+    }
+
+    function stopSubscribe(){
+      if(es){
+        es.close();
+        es = null;
+        addMessage('已停止訂閱');
+        subscribeBtn.disabled = false;
+        unsubscribeBtn.disabled = true;
+      }
+    }
+
+    subscribeBtn.addEventListener('click', ()=>startSubscribe(topicEl.value.trim()));
+    unsubscribeBtn.addEventListener('click', stopSubscribe);
+
+    sendBtn.addEventListener('click', ()=>{
+      const msg = messageInput.value.trim();
+      if(!msg) return;
+      sendToNtfy(topicEl.value.trim(), msg);
+      messageInput.value = '';
+    });
+
+    clearBtn.addEventListener('click', ()=>{messagesEl.innerHTML='';});
+
+    // Enter 鍵送出（在 textarea 中按 Ctrl+Enter 換行）
+    messageInput.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' && !e.shiftKey){
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>
