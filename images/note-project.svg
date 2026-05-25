@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="320" viewBox="0 0 512 320" role="img" aria-label="雲端記事本縮圖">
+  <defs>
+    <linearGradient id="g1" x1="0" x2="1">
+      <stop offset="0" stop-color="#6f7de8"/>
+      <stop offset="1" stop-color="#8a4dbf"/>
+    </linearGradient>
+  </defs>
+  <rect rx="18" width="512" height="320" fill="#121217" />
+  <rect x="28" y="26" width="456" height="268" rx="12" fill="url(#g1)" opacity="0.12" />
+
+  <g transform="translate(48,48)">
+    <rect width="416" height="224" rx="10" fill="#1b1b1b" stroke="#2f2f35" />
+    <rect x="20" y="18" width="376" height="36" rx="6" fill="#2a2a2a" />
+    <circle cx="44" cy="36" r="6" fill="#f2bc52" />
+    <circle cx="64" cy="36" r="6" fill="#8bd26f" />
+    <circle cx="84" cy="36" r="6" fill="#ff7a7a" />
+
+    <rect x="24" y="72" width="368" height="18" rx="4" fill="#2b2b2b" />
+    <rect x="24" y="100" width="368" height="12" rx="4" fill="#2b2b2b" />
+    <rect x="24" y="122" width="320" height="12" rx="4" fill="#2b2b2b" />
+    <rect x="24" y="144" width="280" height="12" rx="4" fill="#2b2b2b" />
+
+    <rect x="24" y="180" width="160" height="36" rx="8" fill="#6f7de8" />
+    <text x="52" y="204" fill="#fff" font-family="'Noto Sans TC', sans-serif" font-size="14">Save</text>
+
+    <g transform="translate(312,176)">
+      <rect width="80" height="36" rx="8" fill="#2b2b2b" />
+      <text x="12" y="23" fill="#bdbdbd" font-family="'Noto Sans TC', sans-serif" font-size="12">最後修改</text>
+    </g>
+  </g>
+
+</svg>

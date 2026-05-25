@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>雲端記事本 — 作品說明</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .demo-wrap{max-width:980px;margin:36px auto;padding:24px;background:#111;border-radius:12px;color:#eee}
+    h1{margin:0 0 12px}
+    .meta{color:#bdbdbd;margin-bottom:18px}
+    .note{background:#0f0f10;padding:14px;border-radius:8px;border:1px solid #222}
+    .links{margin-top:18px}
+    a.btn{display:inline-block;padding:10px 14px;background:#6f7de8;color:#fff;border-radius:8px;text-decoration:none}
+  </style>
+</head>
+<body>
+  <main class="demo-wrap">
+    <h1>雲端記事本（Google Apps Script）</h1>
+    <p class="meta">單一 `code.gs` 檔案實作的 Web App 範例，直接使用 GAS 的 DriveApp 存取 Google Drive 中的記事檔案。</p>
+
+    <section class="note">
+      <h3>說明</h3>
+      <ul>
+        <li>專案網址：<a href="https://script.google.com/a/macros/gm.ptivs.tn.edu.tw/s/AKfycbwrhusbMgiI14KbLFd19XIHWE3cFpn_R0LMD7xV1X2jNJJSpVLTRhCz0HoHiwvwdmNnvA/exec" target="_blank">線上雲端記事本（Web App）</a></li>
+        <li>功能：編輯文字、儲存至指定 Google 雲端資料夾（ID: 1acJOXu2h3PCOecxUeiHVzQ6X_MxRD5IR），顯示最後修改時間。</li>
+        <li>部署：將 `code.gs` 貼到 Google Apps Script 編輯器，設定專案時區後部署為 Web App 即可。</li>
+      </ul>
+
+      <div class="links">
+        <a class="btn" href="https://script.google.com/a/macros/gm.ptivs.tn.edu.tw/s/AKfycbwrhusbMgiI14KbLFd19XIHWE3cFpn_R0LMD7xV1X2jNJJSpVLTRhCz0HoHiwvwdmNnvA/exec" target="_blank">開啟 Web App</a>
+      </div>
+    </section>
+
+    <p style="margin-top:18px;color:#bdbdbd">注意：由於此為 GAS Web App，無法直接在 GitHub Pages 上運行；要體驗功能請部署為 Apps Script Web App。</p>
+  </main>
+</body>
+</html>
