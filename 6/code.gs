@@ -13,14 +13,15 @@ function getInitialData() {
   const note = getOrCreateNote_();
   return {
     fileName: note.file.getName(),
+    currentFileName: note.file.getName(),
     content: note.content,
     lastUpdatedText: formatDateTime_(note.file.getLastUpdated()),
     fileExists: true,
   };
 }
 
-function saveNote(content) {
-  const note = getOrCreateNote_();
+function saveNote(content, fileName) {
+  const note = getOrCreateNoteByName_(fileName);
   const text = typeof content === 'string' ? content : '';
   note.file.setContent(text);
 
@@ -29,6 +30,65 @@ function saveNote(content) {
     fileName: note.file.getName(),
     lastUpdatedText: formatDateTime_(note.file.getLastUpdated()),
     content: text,
+  };
+}
+
+function openNote(fileName) {
+  const note = getNoteByName_(fileName);
+
+  return {
+    ok: true,
+    fileName: note.file.getName(),
+    content: note.content,
+    lastUpdatedText: formatDateTime_(note.file.getLastUpdated()),
+    fileExists: true,
+  };
+}
+
+function saveAsNote(content, fileName) {
+  const name = normalizeFileName_(fileName);
+
+  if (!name) {
+    throw new Error('請輸入檔名');
+  }
+
+  if (findNoteFileByName_(name)) {
+    throw new Error('檔案已存在，請改用其他檔名');
+  }
+
+  const folder = DriveApp.getFolderById(FOLDER_ID);
+  const text = typeof content === 'string' ? content : '';
+  const file = folder.createFile(name, text, MimeType.PLAIN_TEXT);
+
+  return {
+    ok: true,
+    fileName: file.getName(),
+    content: text,
+    lastUpdatedText: formatDateTime_(file.getLastUpdated()),
+    fileExists: true,
+  };
+}
+
+function listNoteFiles() {
+  const folder = DriveApp.getFolderById(FOLDER_ID);
+  const files = folder.getFiles();
+  const items = [];
+
+  while (files.hasNext()) {
+    const file = files.next();
+    items.push({
+      name: file.getName(),
+      lastUpdatedText: formatDateTime_(file.getLastUpdated()),
+    });
+  }
+
+  items.sort(function (left, right) {
+    return left.name.localeCompare(right.name, 'zh-Hant');
+  });
+
+  return {
+    ok: true,
+    files: items,
   };
 }
 
@@ -49,6 +109,65 @@ function getOrCreateNote_() {
     file: file,
     content: '',
   };
+}
+
+function getOrCreateNoteByName_(fileName) {
+  const name = normalizeFileName_(fileName) || NOTE_FILE_NAME;
+  const file = findNoteFileByName_(name);
+
+  if (file) {
+    return {
+      file: file,
+      content: file.getBlob().getDataAsString(),
+    };
+  }
+
+  const folder = DriveApp.getFolderById(FOLDER_ID);
+  const createdFile = folder.createFile(name, '', MimeType.PLAIN_TEXT);
+  return {
+    file: createdFile,
+    content: '',
+  };
+}
+
+function getNoteByName_(fileName) {
+  const name = normalizeFileName_(fileName);
+
+  if (!name) {
+    throw new Error('請輸入檔名');
+  }
+
+  const file = findNoteFileByName_(name);
+
+  if (!file) {
+    throw new Error('找不到指定的檔案');
+  }
+
+  return {
+    file: file,
+    content: file.getBlob().getDataAsString(),
+  };
+}
+
+function findNoteFileByName_(fileName) {
+  const folder = DriveApp.getFolderById(FOLDER_ID);
+  const files = folder.getFilesByName(fileName);
+
+  if (files.hasNext()) {
+    return files.next();
+  }
+
+  return null;
+}
+
+function normalizeFileName_(value) {
+  const text = String(value || '').trim();
+
+  if (!text) {
+    return '';
+  }
+
+  return text.replace(/[\\/]/g, '_');
 }
 
 function formatDateTime_(value) {
@@ -244,6 +363,7 @@ function buildHtml_(note) {
       display: flex;
       align-items: center;
       gap: 12px;
+      flex-wrap: wrap;
     }
 
     .save-button {
@@ -280,6 +400,31 @@ function buildHtml_(note) {
       cursor: wait;
     }
 
+    .ghost-button {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 10px;
+      padding: 16px 20px;
+      min-width: 128px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .ghost-button:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.24);
+    }
+
+    .ghost-button:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
+
     .save-icon {
       font-size: 20px;
       line-height: 1;
@@ -295,6 +440,111 @@ function buildHtml_(note) {
 
     .state-error {
       color: var(--danger);
+    }
+
+    .dialog-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.62);
+      backdrop-filter: blur(6px);
+      z-index: 50;
+    }
+
+    .dialog-overlay.is-open {
+      display: flex;
+    }
+
+    .dialog {
+      width: min(520px, 100%);
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: linear-gradient(180deg, #212126, #151518);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      padding: 22px;
+      color: var(--text);
+    }
+
+    .dialog h2 {
+      margin: 0 0 10px;
+      font-size: 24px;
+    }
+
+    .dialog p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .dialog-field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .dialog-field label {
+      font-size: 15px;
+      color: #d7d7d7;
+      font-weight: 700;
+    }
+
+    .dialog-field input,
+    .dialog-field select {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: #101013;
+      color: var(--text);
+      padding: 14px 16px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .dialog-field input:focus,
+    .dialog-field select:focus {
+      border-color: rgba(111, 125, 232, 0.95);
+      box-shadow: 0 0 0 3px rgba(111, 125, 232, 0.18);
+    }
+
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .dialog-button {
+      appearance: none;
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .dialog-button.secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+    }
+
+    .dialog-button.primary {
+      background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
+      color: #fff;
+    }
+
+    .dialog-empty {
+      display: none;
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    .dialog-empty.is-visible {
+      display: block;
     }
 
     @media (max-width: 900px) {
@@ -352,6 +602,8 @@ function buildHtml_(note) {
         <span class="status-inline" id="statusText">${escapeHtml_(initialData.statusText)}</span>
       </div>
       <div class="actions">
+        <button class="ghost-button" id="openButton" type="button">開啟舊檔</button>
+        <button class="ghost-button" id="saveAsButton" type="button">另存新檔</button>
         <button class="save-button" id="saveButton" type="button">
           <span class="save-icon">💾</span>
           <span>Save</span>
@@ -360,18 +612,167 @@ function buildHtml_(note) {
     </footer>
   </div>
 
+  <div class="dialog-overlay" id="dialogOverlay" aria-hidden="true">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+      <h2 id="dialogTitle">檔案</h2>
+      <p id="dialogDescription"></p>
+
+      <div class="dialog-field" id="dialogSelectField">
+        <label for="dialogSelect">舊檔清單</label>
+        <select id="dialogSelect"></select>
+        <div class="dialog-empty" id="dialogEmpty">目前沒有可用的舊檔。</div>
+      </div>
+
+      <div class="dialog-field" id="dialogInputField">
+        <label for="dialogInput">檔名</label>
+        <input id="dialogInput" type="text" autocomplete="off" spellcheck="false">
+      </div>
+
+      <div class="dialog-actions">
+        <button class="dialog-button secondary" id="dialogCancelButton" type="button">取消</button>
+        <button class="dialog-button primary" id="dialogConfirmButton" type="button">確認</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const state = {
       dirty: false,
       saving: false,
       lastSavedContent: ${JSON.stringify(initialData.content)},
+      currentFileName: ${JSON.stringify(initialData.fileName)},
     };
 
     const editor = document.getElementById('editor');
+    const openButton = document.getElementById('openButton');
+    const saveAsButton = document.getElementById('saveAsButton');
     const saveButton = document.getElementById('saveButton');
     const statusText = document.getElementById('statusText');
     const saveStateText = document.getElementById('saveStateText');
     const lastUpdated = document.getElementById('lastUpdated');
+    const fileBar = document.getElementById('fileBar');
+    const dialogOverlay = document.getElementById('dialogOverlay');
+    const dialogTitle = document.getElementById('dialogTitle');
+    const dialogDescription = document.getElementById('dialogDescription');
+    const dialogSelectField = document.getElementById('dialogSelectField');
+    const dialogSelect = document.getElementById('dialogSelect');
+    const dialogEmpty = document.getElementById('dialogEmpty');
+    const dialogInputField = document.getElementById('dialogInputField');
+    const dialogInput = document.getElementById('dialogInput');
+    const dialogCancelButton = document.getElementById('dialogCancelButton');
+    const dialogConfirmButton = document.getElementById('dialogConfirmButton');
+    let dialogMode = '';
+    let dialogResolve = null;
+    let dialogReject = null;
+
+    function updateFileUI(fileName) {
+      state.currentFileName = fileName || '未命名';
+      fileBar.textContent = '📄 ' + state.currentFileName;
+    }
+
+    function closeDialog(result) {
+      dialogOverlay.classList.remove('is-open');
+      dialogOverlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+
+      const resolve = dialogResolve;
+      dialogResolve = null;
+      dialogReject = null;
+      dialogMode = '';
+
+      if (resolve) {
+        resolve(result);
+      }
+    }
+
+    function openDialog(options) {
+      dialogMode = options.mode;
+      dialogTitle.textContent = options.title;
+      dialogDescription.textContent = options.description || '';
+
+      dialogSelectField.style.display = options.mode === 'open' ? 'grid' : 'none';
+      dialogInputField.style.display = options.mode === 'saveas' ? 'grid' : 'none';
+      dialogConfirmButton.textContent = options.confirmText;
+
+      if (options.mode === 'open') {
+        const files = options.files || [];
+        dialogSelect.innerHTML = '';
+
+        if (!files.length) {
+          dialogEmpty.classList.add('is-visible');
+          dialogSelect.style.display = 'none';
+          dialogConfirmButton.disabled = true;
+        } else {
+          dialogEmpty.classList.remove('is-visible');
+          dialogSelect.style.display = '';
+          dialogConfirmButton.disabled = false;
+
+          files.forEach(function (file, index) {
+            const option = document.createElement('option');
+            option.value = file.name;
+            option.textContent = (index + 1) + '. ' + file.name + '（' + file.lastUpdatedText + '）';
+            dialogSelect.appendChild(option);
+          });
+
+          dialogSelect.value = options.defaultValue || (files[0] && files[0].name) || '';
+        }
+      }
+
+      if (options.mode === 'saveas') {
+        dialogInput.value = options.defaultValue || '';
+        dialogConfirmButton.disabled = false;
+        setTimeout(function () {
+          dialogInput.focus();
+          dialogInput.select();
+        }, 0);
+      }
+
+      dialogOverlay.classList.add('is-open');
+      dialogOverlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+
+      return new Promise(function (resolve, reject) {
+        dialogResolve = resolve;
+        dialogReject = reject;
+      });
+    }
+
+    dialogCancelButton.addEventListener('click', function () {
+      closeDialog(null);
+    });
+
+    dialogConfirmButton.addEventListener('click', function () {
+      if (dialogMode === 'open') {
+        closeDialog(dialogSelect.value);
+        return;
+      }
+
+      if (dialogMode === 'saveas') {
+        closeDialog(dialogInput.value);
+      }
+    });
+
+    dialogOverlay.addEventListener('click', function (event) {
+      if (event.target === dialogOverlay) {
+        closeDialog(null);
+      }
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (!dialogOverlay.classList.contains('is-open')) {
+        return;
+      }
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeDialog(null);
+      }
+
+      if (event.key === 'Enter' && dialogMode === 'saveas' && document.activeElement !== dialogInput) {
+        event.preventDefault();
+        closeDialog(dialogInput.value);
+      }
+    });
 
     function setStatus(message, kind) {
       statusText.textContent = message;
@@ -400,26 +801,110 @@ function buildHtml_(note) {
       setStatus(message, 'error');
     }
 
+    function applyNoteData(data) {
+      state.lastSavedContent = data.content || '';
+      state.dirty = false;
+      editor.value = data.content || '';
+      updateFileUI(data.fileName);
+      lastUpdated.textContent = '最後修改時間：' + data.lastUpdatedText;
+      setStatus('已保存', 'saved');
+    }
+
     function saveNow() {
       if (state.saving) return;
       setSaving(true);
       google.script.run
         .withSuccessHandler(function (data) {
-          state.lastSavedContent = data.content || '';
-          state.dirty = false;
-          lastUpdated.textContent = '最後修改時間：' + data.lastUpdatedText;
-          setStatus('已保存', 'saved');
+          applyNoteData(data);
           setSaving(false);
         })
         .withFailureHandler(function (error) {
           setSaving(false);
           showError('儲存失敗：' + (error && error.message ? error.message : '未知錯誤'));
         })
-        .saveNote(editor.value);
+        .saveNote(editor.value, state.currentFileName);
+    }
+
+    function saveAsNewFile() {
+      if (state.saving) return;
+      if (state.dirty && !window.confirm('目前有未儲存變更，是否仍要另存新檔？')) {
+        return;
+      }
+
+      openDialog({
+        mode: 'saveas',
+        title: '另存新檔',
+        description: '輸入新的檔名後建立一份新文件。',
+        confirmText: '另存',
+        defaultValue: state.currentFileName || '',
+      }).then(function (fileName) {
+        if (!fileName) {
+          return;
+        }
+
+        setSaving(true);
+        google.script.run
+          .withSuccessHandler(function (data) {
+            applyNoteData(data);
+            setSaving(false);
+          })
+          .withFailureHandler(function (error) {
+            setSaving(false);
+            showError('另存新檔失敗：' + (error && error.message ? error.message : '未知錯誤'));
+          })
+          .saveAsNote(editor.value, fileName);
+      });
+    }
+
+    function openOldFile() {
+      if (state.saving) return;
+
+      if (state.dirty && !window.confirm('目前有未儲存變更，是否仍要開啟其他檔案？')) {
+        return;
+      }
+
+      openButton.disabled = true;
+      google.script.run
+        .withSuccessHandler(function (data) {
+          openButton.disabled = false;
+          const files = data.files || [];
+
+          openDialog({
+            mode: 'open',
+            title: '開啟舊檔',
+            description: files.length ? '從清單中選擇要開啟的檔案。' : '目前沒有可開啟的舊檔。',
+            confirmText: '開啟',
+            files: files,
+            defaultValue: state.currentFileName || (files[0] && files[0].name) || '',
+          }).then(function (fileName) {
+            if (!fileName) {
+              return;
+            }
+
+            setSaving(true);
+            google.script.run
+              .withSuccessHandler(function (note) {
+                applyNoteData(note);
+                setSaving(false);
+              })
+              .withFailureHandler(function (error) {
+                setSaving(false);
+                showError('開啟失敗：' + (error && error.message ? error.message : '未知錯誤'));
+              })
+              .openNote(fileName);
+          });
+        })
+        .withFailureHandler(function (error) {
+          openButton.disabled = false;
+          showError('無法取得舊檔清單：' + (error && error.message ? error.message : '未知錯誤'));
+        })
+        .listNoteFiles();
     }
 
     editor.addEventListener('input', markDirty);
     saveButton.addEventListener('click', saveNow);
+    saveAsButton.addEventListener('click', saveAsNewFile);
+    openButton.addEventListener('click', openOldFile);
 
     window.addEventListener('beforeunload', function (event) {
       if (state.dirty) {
@@ -428,6 +913,7 @@ function buildHtml_(note) {
       }
     });
 
+    updateFileUI(state.currentFileName);
     setStatus('已保存', 'saved');
   </script>
 </body>
