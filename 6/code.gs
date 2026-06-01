@@ -251,6 +251,14 @@ function buildHtml_(note) {
       border-bottom: 1px solid rgba(255, 255, 255, 0.12);
     }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
     .brand {
       display: flex;
       align-items: center;
@@ -554,6 +562,11 @@ function buildHtml_(note) {
         align-items: flex-start;
       }
 
+      .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
       .brand {
         font-size: 26px;
       }
@@ -584,7 +597,13 @@ function buildHtml_(note) {
         </svg>
         <span>雲端記事本</span>
       </div>
-      <div class="save-state" id="saveState"><span class="save-dot"></span><span id="saveStateText">未保存</span></div>
+      <div class="header-actions">
+        <div class="save-state" id="saveState"><span class="save-dot"></span><span id="saveStateText">未保存</span></div>
+        <div class="actions">
+          <button class="ghost-button" id="openButton" type="button">開啟舊檔</button>
+          <button class="ghost-button" id="saveAsButton" type="button">另存新檔</button>
+        </div>
+      </div>
     </header>
 
     <main class="content">
@@ -601,14 +620,10 @@ function buildHtml_(note) {
         <span id="lastUpdated">最後修改時間：${escapeHtml_(initialData.lastUpdatedText)}</span>
         <span class="status-inline" id="statusText">${escapeHtml_(initialData.statusText)}</span>
       </div>
-      <div class="actions">
-        <button class="ghost-button" id="openButton" type="button">開啟舊檔</button>
-        <button class="ghost-button" id="saveAsButton" type="button">另存新檔</button>
-        <button class="save-button" id="saveButton" type="button">
-          <span class="save-icon">💾</span>
-          <span>Save</span>
-        </button>
-      </div>
+      <button class="save-button" id="saveButton" type="button">
+        <span class="save-icon">💾</span>
+        <span>Save</span>
+      </button>
     </footer>
   </div>
 
