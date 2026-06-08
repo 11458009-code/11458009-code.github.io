@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>英文單字選擇題測驗</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Noto Sans TC', 'Arial', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 700px;
+      padding: 50px;
+      text-align: center;
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 32px;
+    }
+    
+    .emoji {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+    
+    p {
+      color: #666;
+      line-height: 1.8;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+    
+    .features {
+      background: #f0f4ff;
+      border-radius: 12px;
+      padding: 25px;
+      margin: 30px 0;
+      text-align: left;
+    }
+    
+    .features h3 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    
+    .features ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    
+    .features li {
+      color: #555;
+      padding: 8px 0;
+      padding-left: 30px;
+      position: relative;
+      font-size: 15px;
+    }
+    
+    .features li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #667eea;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 35px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 15px 35px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      font-family: 'Noto Sans TC', 'Arial', sans-serif;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 50px;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+      background: #e8e8e8;
+      color: #333;
+    }
+    
+    .btn-secondary:hover {
+      background: #d8d8d8;
+    }
+    
+    .info-box {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 25px;
+      text-align: left;
+    }
+    
+    .info-box p {
+      margin: 0;
+      color: #856404;
+      font-size: 14px;
+    }
+    
+    .back-link {
+      margin-top: 30px;
+    }
+    
+    .back-link a {
+      color: #667eea;
+      text-decoration: none;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="emoji">📚</div>
+    
+    <h1>英文單字選擇題測驗</h1>
+    
+    <p>一個互動式線上英文單字測驗應用，使用 Google Apps Script 開發。</p>
+    
+    <div class="features">
+      <h3>✨ 功能特色</h3>
+      <ul>
+        <li>🎯 隨機出題：每次測驗都隨機抽取 10 道不同題目</li>
+        <li>📝 ABCD 四選一：清晰的選擇題格式</li>
+        <li>🔤 雙語支援：題目與選項可使用中文或英文</li>
+        <li>🏆 自動評分：每題 10 分，滿分 100 分</li>
+        <li>📊 成績反饋：即時顯示成績與答對題數</li>
+        <li>☁️ 雲端題庫：從 Google Sheets 動態讀取題目</li>
+      </ul>
+    </div>
+    
+    <p><strong>如何開始？</strong></p>
+    <p>此項目為 Google Apps Script 應用，需要在 Google 平台部署後才能使用。按下按鈕前往「README」查看詳細部署步驟。</p>
+    
+    <div class="button-group">
+      <a href="README.md" class="btn btn-secondary" target="_blank">📖 查看部署說明</a>
+      <a href="https://script.google.com/" class="btn btn-primary" target="_blank">🚀 開始部署</a>
+    </div>
+    
+    <div class="info-box">
+      <p><strong>💡 提示：</strong> 部署完成後，將會得到一個 Google Apps Script 網頁應用的 URL。在該 URL 中即可開始進行英文單字測驗。</p>
+    </div>
+    
+    <div class="back-link">
+      <a href="../">← 返回作品集首頁</a>
+    </div>
+  </div>
+</body>
+</html>
